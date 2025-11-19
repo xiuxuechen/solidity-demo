@@ -1,5 +1,7 @@
-const { ethers, network, run } = require("hardhat");
+const { ethers, network } = require("hardhat");
+const { verify } = require("../utils/verify");
 require("dotenv").config();
+
 
 async function main() {
     const [deployer] = await ethers.getSigners();
@@ -10,6 +12,7 @@ async function main() {
     await helloWorld.deployTransaction.wait(1);
     console.log("合约已部署到地址:", helloWorld.address);
     if (network.config.chainId == process.env.SEPOLIA_CHAIN_ID && process.env.ETHERSCAN_API_KEY) {
+        await helloWorld.deployTransaction.wait(6);
         await verify(helloWorld, [1, "Hello, Hardhat!"]);
     }
     let currentCount = await helloWorld.count();
@@ -27,31 +30,10 @@ async function main() {
 
     // 再次读取状态查看变化
     let updatedCount = await helloWorld.count();
-    console.log("更新后的 count: ", updatedCount);
+    console.log("更新后的 count: ", updatedCount.toString());
 
     console.log("\n🎉 所有操作完成！");
+    console.log("----------------------------------------------------");
 }
 
-async function verify(contract, args) {
-    console.log("正在验证合约...");
-    try {
-        await run("verify:verify", {
-            address: contract.address,
-            constructorArguments: args,
-        });
-        console.log("合约验证成功！");
-    } catch (e) {
-        if (e.message.toLowerCase().includes("already verified")) {
-            console.log("合约已验证，无需重复验证。");
-        } else {
-            console.log("合约验证失败:", e);
-        }
-    }
-}
-
-main()
-    .then(() => process.exit(0))
-    .catch((error) => {
-        console.error(error);
-        process.exit(1);
-    });
+module.exports.default = main;
