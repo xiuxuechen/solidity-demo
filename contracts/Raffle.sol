@@ -2,7 +2,7 @@
 pragma solidity ^0.8.28;
 
 import "@chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
-import "@chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
+import "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
 
 error Raffle__NotEnoughEntranceFee(string message);
@@ -15,7 +15,7 @@ error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint25
  * @author xxc
  * @notice 这是一个基于链上随机数的抽奖合约
  */
-contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
+contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   enum RaffleState {
     OPEN,
     CALCULATING

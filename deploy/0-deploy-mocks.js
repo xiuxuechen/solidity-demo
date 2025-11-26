@@ -1,4 +1,4 @@
-const { network } = require("hardhat");
+const { network, ethers } = require("hardhat");
 const { developmentChains } = require("../helper-hardhat-config");
 const { verify } = require("../utils/verify");
 
@@ -20,15 +20,18 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         log("----------------------------------------------------");
 
         log("开始部署模拟随机数合约...");
-        await deploy("VRFCoordinatorV2Mock", {
-            contract: "VRFCoordinatorV2Mock",
+        await deploy("VRFCoordinatorV2_5Mock", {
+            contract: "VRFCoordinatorV2_5Mock",
             from: deployer,
             log: true,
             args: [
-                "250000000000000000",
+                ethers.utils.parseEther("0.5"), // baseFee
                 1e9,
+                ethers.utils.parseEther("0.25"),
             ]
-        })
+        });
+        log("模拟随机数合约部署完成！");
+        log("----------------------------------------------------");
     }
 }
 module.exports.tags = ["all", "mocks"];
