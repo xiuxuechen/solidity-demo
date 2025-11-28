@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@chainlink/contracts/src/v0.8/vrf/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
+import "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
 
 error Raffle__NotEnoughEntranceFee(string message);
 error Raffle__TransferFailed(string message);
 error Raffle__RaffleNotOpen(string message);
+  event RequestedRaffleWinner(uint256 indexed requestId);
 error Raffle__UpkeepNotNeeded(uint256 currentBalance, uint256 numPlayers, uint256 raffleState);
 
 /**
@@ -22,7 +23,6 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   }
 
   uint256 private immutable i_entranceFee;
-  VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
   uint64 private immutable i_subscriptionId;
   bytes32 private immutable i_gasLane;
   uint32 private immutable i_callbackGasLimit;
@@ -39,14 +39,13 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   event WinnerPicked(address indexed winner);
 
   constructor(
-    address vrfCoordinatorV2,
+    address vrfCoordinatorV2Plus,
     uint64 subscriptionId,
     bytes32 gasLane,
     uint256 interval,
     uint256 entranceFee,
     uint32 callbackGasLimit
-  ) VRFConsumerBaseV2(vrfCoordinatorV2) {
-    i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinatorV2);
+  ) VRFConsumerBaseV2Plus(vrfCoordinatorV2Plus) {
     i_subscriptionId = subscriptionId;
     i_gasLane = gasLane;
     i_interval = interval;
@@ -102,16 +101,22 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
       );
     }
     s_raffleState = RaffleState.CALCULATING;
-    uint256 requestId = i_vrfCoordinator.requestRandomWords(
-      i_gasLane,
-      i_subscriptionId,
-      REQUEST_CONFIRMATIONS,
-      i_callbackGasLimit,
-      NUM_WORDS
+    uint256 requestId = s_vrfCoordinator.requestRandomWords(
+      VRFV2PlusClient.RandomWordsRequest({
+        keyHash: i_gasLane,
+        subId: i_subscriptionId,
+        requestConfirmations: REQUEST_CONFIRMATIONS,
+        callbackGasLimit: i_callbackGasLimit,
+        numWords: NUM_WORDS,
+        extraArgs: VRFV2PlusClient._argsToBytes(
+          VRFV2PlusClient.ExtraArgsV1({ nativePayment: false })
+        )
+      })
     );
+    emit RequestedRaffleWinner(requestId);
   }
 
-  function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords) internal override {
+  function fulfillRandomWords(uint256 /*requestId*/, uint256[] calldata randomWords) internal override {
     uint256 recentWinnerIndex = randomWords[0] % s_players.length;
     address payable recentWinner = s_players[recentWinnerIndex];
     s_recentWinner = recentWinner;
@@ -144,6 +149,7 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
   function getLengthOfPlayers() public view returns (uint256) {
     return s_players.length;
   }
+
   function getNumWords() public pure returns (uint32) {
     return NUM_WORDS;
   }

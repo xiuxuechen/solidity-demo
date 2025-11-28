@@ -1,14 +1,49 @@
 {
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "eslint.validate": ["javascript"],
-  "prettier.requireConfig": true,
-  "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[solidity]": {
-    "editor.defaultFormatter": "JuanBlanco.solidity"
-  }
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.validate": ["javascript"],
+    "prettier.requireConfig": true,
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[solidity]": {
+        "editor.defaultFormatter": "JuanBlanco.solidity"
+    },
+
+    "solidity.enabledAsYouTypeCompilationErrorCheck": true,
+    "solidity.validation.enable": true,
+    "solidity.linter.enable": true,
+    "solidity.formatter": "prettier",
+    "solidity.compileUsingRemoteVersion": "latest",
+    "solidity.defaultCompiler": "remote",
+
+    "solidity.packageDefaultDependenciesDirectory": "node_modules",
+    "solidity.packageDefaultDependenciesContractsDirectory": "",
+
+    "editor.quickSuggestions": {
+        "strings": true,
+        "comments": true,
+        "other": true
+    },
+    "editor.suggest.snippetsPreventQuickSuggestions": false,
+    "editor.suggest.showKeywords": true,
+    "editor.suggest.showMethods": true,
+    "editor.suggest.showFunctions": true,
+    "editor.suggest.showClasses": true,
+    "editor.wordBasedSuggestions": "allDocuments",
+
+    "files.associations": {
+        "*.sol": "solidity"
+    },
+    "emmet.includeLanguages": {
+        "solidity": "html"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }

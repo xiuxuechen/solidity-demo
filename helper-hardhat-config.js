@@ -14,7 +14,7 @@ const networkConfig = {
         name: "sepolia",
         ethUsdPriceFeed: ETH_USD_PRICE_FEED_ADDRESS,
         vrfCoordinator: VRF_COORDINATOR_ADDRESS,
-        entranceFee: ethers.utils.parseEther("0.01"),
+        entranceFee: ethers.parseEther("0.01"),
         subscriptionId: SUBSCRIPTION_ID
     },
 }

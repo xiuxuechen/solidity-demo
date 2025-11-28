@@ -1,10 +1,8 @@
-require("@nomiclabs/hardhat-waffle");
-require("hardhat-gas-reporter");
-require("dotenv").config();
-require("solidity-coverage");
-require("@nomicfoundation/hardhat-verify");
+require("@nomicfoundation/hardhat-toolbox");
 require("./tasks/block-number");
-require("hardhat-deploy");
+require("dotenv").config();
+const { remapImportPaths } = require("./remappings-helper.js");
+
 
 /** @type import('hardhat/config').HardhatUserConfig */
 const LOCALHOST_CHAIN_ID = parseInt(process.env.LOCAL_CHAIN_ID);
@@ -18,6 +16,12 @@ const COINMARKETCAP_API_KEY = process.env.COINMARKETCAP_API_KEY;
 module.exports = {
   solidity: "0.8.28",
   defaultNetwork: "hardhat",
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./build/cache",
+    artifacts: "./build/artifacts",
+  },
   networks: {
     sepolia: {
       url: SEPOLIA_RPC_URL,
@@ -49,4 +53,5 @@ module.exports = {
       [SEPOLIA_CHAIN_ID]: 0
     }
   },
+  preprocess: remapImportPaths()
 };

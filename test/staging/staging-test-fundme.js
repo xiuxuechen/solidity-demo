@@ -8,7 +8,7 @@ developmentChains.includes(network.name) ?
     describe("FundMe Contract Staging Tests", async function () {
         let fundMe;
         let deployer;
-        const sendValue = ethers.utils.parseEther("0.01"); // 0.1 ETH
+        const sendValue = ethers.parseEther("0.01"); // 0.1 ETH
 
         beforeEach(async function () {
             deployer = (await getNamedAccounts()).deployer;
