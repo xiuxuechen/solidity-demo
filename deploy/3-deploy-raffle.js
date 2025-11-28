@@ -37,8 +37,12 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     if (!developmentChains.includes(network.name)) {
         const vrfCoordinatorMock = await ethers.getContract("VRFCoordinatorV2_5Mock");
         await vrfCoordinatorMock.addConsumer(subscriptionId, raffle.address);
-        if (process.env.ETHERSCAN_API_KEY) {
-            await verify(raffle.address, args);
-        }
     }
+    log("----------------------------------------------------");
+    if (!process.env.ETHERSCAN_API_KEY) {
+        return;
+    }
+    await verify(raffle, args);
 }
+
+module.exports.tags = ["all", "raffle"];
