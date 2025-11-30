@@ -83,7 +83,7 @@ require("dotenv").config();
                 assert.equal(endingDeployerBalance.toString(), startingFundMeBalance.add(startingDeployerBalance).sub(gasCost).toString());
             });
 
-            it.only("测试多个众筹人提现", async function () {
+            it("测试多个众筹人提现", async function () {
                 const startingFundMeBalance = await fundMe.provider.getBalance(fundMe.address);
                 console.log("提现前合约余额:", startingFundMeBalance.toString());
                 const startingDeployerBalance = await fundMe.provider.getBalance(deployer);

@@ -20,6 +20,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
         log: true,
         waitConfirmations: network.config.blockConfirmations || 1,
     });
+    log("众筹合约部署成功！");
     log("----------------------------------------------------");
     if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         await verify(fundMe, [ethUsdPriceFeedAddress])

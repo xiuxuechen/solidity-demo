@@ -110,4 +110,14 @@ contract FundMe {
         // (bool sendStatus) = payable (msg.sender).send(address(this).balance);
         // require(sendStatus,unicode"提现失败！");
     }
+
+    function priceFeed() public view returns (AggregatorV3Interface) {
+        return s_priceFeed;
+    }
+
+    function addressToAmountFunded(
+        address funder
+    ) public view returns (uint256) {
+        return s_addressToAmountFunded[funder];
+    }
 }

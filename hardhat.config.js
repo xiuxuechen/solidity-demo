@@ -1,6 +1,8 @@
-require("@nomicfoundation/hardhat-toolbox");
+require("@nomiclabs/hardhat-waffle");
+require("@nomicfoundation/hardhat-verify");
 require("./tasks/block-number");
 require("dotenv").config();
+require('hardhat-deploy');
 const { remapImportPaths } = require("./remappings-helper.js");
 
 
