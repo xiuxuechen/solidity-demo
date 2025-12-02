@@ -4,6 +4,7 @@ pragma solidity ^0.8.28;
 import "@chainlink/contracts/src/v0.8/vrf/dev/VRFConsumerBaseV2Plus.sol";
 import "@chainlink/contracts/src/v0.8/vrf/dev/libraries/VRFV2PlusClient.sol";
 import "@chainlink/contracts/src/v0.8/automation/interfaces/AutomationCompatibleInterface.sol";
+import "hardhat/console.sol";
 
 error Raffle__NotEnoughEntranceFee(string message);
 error Raffle__TransferFailed(string message);
@@ -134,6 +135,8 @@ contract Raffle is VRFConsumerBaseV2Plus, AutomationCompatibleInterface {
         uint256[] calldata randomWords
     ) internal override {
         uint256 recentWinnerIndex = randomWords[0] % s_players.length;
+        console.log("s_players.length: ", s_players.length);
+        console.log("randomWords[0]: ", randomWords[0]);
         address payable recentWinner = s_players[recentWinnerIndex];
         s_recentWinner = recentWinner;
         s_raffleState = RaffleState.OPEN;

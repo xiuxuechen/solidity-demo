@@ -116,4 +116,62 @@ require("dotenv").config();
             });
         });
 
+        describe("Raffle-fulfillRandomWords-摇色子ing", function () {
+            beforeEach(async function () {
+                await raffle.enterRaffle({ value: ethers.utils.parseEther("0.01") });
+                await network.provider.send("evm_increaseTime", [interval.toNumber() + 1]);
+                await network.provider.send("evm_mine", []);
+            });
+            it("Raffle-test-未发出随机数请求时要求开奖被回滚", async function () {
+                await expect(vrfCoordinatorMock.fulfillRandomWords(0, raffle.address)).to.be.revertedWith(
+                    "InvalidRequest"
+                );
+                await expect(vrfCoordinatorMock.fulfillRandomWords(1, raffle.address)).to.be.revertedWith(
+                    "InvalidRequest"
+                );
+            });
+
+            it.only("Raffle-test-开奖成功！", async function () {
+                const startPlayerIndex = 1;
+                const endPlayerIndex = 5;
+                for (let i = startPlayerIndex; i < endPlayerIndex; i++) {
+                    raffle = raffle.connect(accounts[i]);
+                    await raffle.enterRaffle({ value: ethers.utils.parseEther("0.01") });
+                }
+                const lastTimeStamp = await raffle.getLastTimeStamp();
+
+                await new Promise(async (resolve, reject) => {
+                    raffle.once("WinnerPicked", async () => {
+                        const recentWinner = await raffle.getRecentWinner();
+                        console.log("天选之子出现了！", recentWinner);
+                        console.log(accounts[1].address);
+                        console.log(accounts[2].address);
+                        console.log(accounts[3].address);
+                        console.log(accounts[4].address);
+                        try {
+                            const raffleState = await raffle.getRaffleState();
+                            const winnerBalance = await accounts[2].getBalance();
+                            const endingTimeStamp = await raffle.getLastTimeStamp();
+
+
+
+                            resolve();
+                        } catch (error) {
+                            reject(error);
+                        };
+
+
+                    });
+                    const tx = await raffle.performUpkeep("0x");
+                    const txReceipt = await tx.wait(1);
+                    await vrfCoordinatorMock.fulfillRandomWords(
+                        txReceipt.events[1].args.requestId,
+                        raffle.address
+                    );
+                });
+
+
+
+            });
+        });
     });

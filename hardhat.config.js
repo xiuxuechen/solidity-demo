@@ -55,5 +55,8 @@ module.exports = {
       [SEPOLIA_CHAIN_ID]: 0
     }
   },
+  mocha: {
+    timeout: 200000
+  },
   preprocess: remapImportPaths()
 };
