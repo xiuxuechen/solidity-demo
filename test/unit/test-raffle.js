@@ -131,30 +131,38 @@ require("dotenv").config();
                 );
             });
 
-            it.only("Raffle-test-开奖成功！", async function () {
+            it("Raffle-test-开奖成功！", async function () {
                 const startPlayerIndex = 1;
                 const endPlayerIndex = 5;
+                let startingBalance;
                 for (let i = startPlayerIndex; i < endPlayerIndex; i++) {
                     raffle = raffle.connect(accounts[i]);
                     await raffle.enterRaffle({ value: ethers.utils.parseEther("0.01") });
                 }
+                //最后一个人加入抽奖的时间
                 const lastTimeStamp = await raffle.getLastTimeStamp();
 
                 await new Promise(async (resolve, reject) => {
                     raffle.once("WinnerPicked", async () => {
                         const recentWinner = await raffle.getRecentWinner();
                         console.log("天选之子出现了！", recentWinner);
-                        console.log(accounts[1].address);
-                        console.log(accounts[2].address);
-                        console.log(accounts[3].address);
-                        console.log(accounts[4].address);
                         try {
                             const raffleState = await raffle.getRaffleState();
-                            const winnerBalance = await accounts[2].getBalance();
+                            const winnerBalance = await accounts[1].getBalance();
                             const endingTimeStamp = await raffle.getLastTimeStamp();
-
-
-
+                            //开奖时间 > 最后一个人加入抽奖的时间
+                            assert(endingTimeStamp > lastTimeStamp);
+                            // 已抽奖，所以此时获取玩家列表会报错被回滚
+                            await expect(raffle.getPlayers(0)).to.be.reverted;
+                            assert.equal(raffleState, 0);
+                            assert.equal(recentWinner, accounts[1].address);
+                            assert.equal(winnerBalance.toString(), startingBalance
+                                // beforeEach里有0.01的初始资金
+                                .add(ethers.utils.parseEther("0.01"))
+                                .add(ethers.utils.parseEther("0.01")
+                                    .mul(endPlayerIndex - startPlayerIndex)
+                                )
+                                .toString());
                             resolve();
                         } catch (error) {
                             reject(error);
@@ -162,12 +170,18 @@ require("dotenv").config();
 
 
                     });
-                    const tx = await raffle.performUpkeep("0x");
-                    const txReceipt = await tx.wait(1);
-                    await vrfCoordinatorMock.fulfillRandomWords(
-                        txReceipt.events[1].args.requestId,
-                        raffle.address
-                    );
+                    try {
+                        const tx = await raffle.performUpkeep("0x");
+                        const txReceipt = await tx.wait(1);
+                        startingBalance = await accounts[1].getBalance();
+                        await vrfCoordinatorMock.fulfillRandomWords(
+                            txReceipt.events[1].args.requestId,
+                            raffle.address
+                        );
+                    } catch (error) {
+                        reject(error);
+                    }
+
                 });
 
 

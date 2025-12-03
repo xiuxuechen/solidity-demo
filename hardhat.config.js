@@ -56,7 +56,7 @@ module.exports = {
     }
   },
   mocha: {
-    timeout: 200000
+    timeout: 500000
   },
   preprocess: remapImportPaths()
 };
